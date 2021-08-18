@@ -1,0 +1,21 @@
+.editorContainer {
+ height: 45vh;
+ display: flex;
+ flex-direction: column;
+ border: 1px solid;
+ border-color: #efefef;
+ border-radius: 5px;
+}
+
+.editor {
+ flex: 1;
+ height: unset !important;
+}
+
+.toolbar {
+ background-color: #efefef;
+
+ & * {
+  background-color: #efefef;
+ }
+}

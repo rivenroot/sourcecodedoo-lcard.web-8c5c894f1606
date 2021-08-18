@@ -1,0 +1,12 @@
+.root {
+ background-color: transparent;
+ border: 2px dashed #d5d5d5;
+ box-shadow: none;
+ color: #1f1f1f;
+ &:hover {
+  background-color: transparent;
+ }
+ & > span {
+  flex-direction: column;
+ }
+}

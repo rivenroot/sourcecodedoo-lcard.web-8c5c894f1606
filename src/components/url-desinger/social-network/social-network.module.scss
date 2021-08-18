@@ -1,0 +1,28 @@
+.networksButton,
+.videoButton,
+.imageButton {
+ background-color: transparent;
+ border: 2px dashed #d5d5d5;
+ box-shadow: none;
+ color: #1f1f1f;
+ &:hover {
+  background-color: transparent;
+ }
+ & > span {
+  flex-direction: column;
+ }
+}
+
+.videoButton {
+ width: 100%;
+ height: 25em;
+}
+
+.imageButton {
+ width: 10em;
+ height: 10em;
+}
+
+.socialSelect {
+ max-height: 20px;
+}
