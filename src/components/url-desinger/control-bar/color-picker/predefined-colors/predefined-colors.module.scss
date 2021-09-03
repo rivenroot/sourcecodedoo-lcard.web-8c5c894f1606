@@ -1,0 +1,11 @@
+.colorItem {
+ width: 100%;
+ height: 30px;
+ border-radius: 4px;
+ cursor: pointer;
+ box-sizing: border-box;
+}
+
+.selectedColorItem {
+ border: 2px solid;
+}

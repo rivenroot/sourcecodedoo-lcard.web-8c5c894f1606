@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { StylesProvider, ThemeProvider } from '@material-ui/core';
 import { theme } from 'material-theme';
-import { BrowserRouter, Switch } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import Routes from 'routes';
 import { ErrorHandlerProvider } from 'providers/errorHandler';
 import { ToastContainerProvider } from 'providers/toastContainer';
@@ -19,9 +19,7 @@ export const App = () => {
       <ToastContainerProvider>
        <Provider store={store}>
         <ErrorHandlerProvider>
-         <Switch>
           <Routes />
-         </Switch>
         </ErrorHandlerProvider>
        </Provider>
       </ToastContainerProvider>

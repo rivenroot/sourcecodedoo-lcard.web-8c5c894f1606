@@ -1,1 +1,1 @@
-export const APIBASE = 'https://lcard.startify.dev:8000';
+export const APIBASE = 'http://localhost:8000';

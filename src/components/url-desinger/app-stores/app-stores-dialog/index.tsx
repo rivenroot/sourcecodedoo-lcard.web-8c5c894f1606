@@ -1,46 +1,51 @@
 import React, { FC, useState } from 'react';
 import { DialogWrapper } from 'components/shared/dialog';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
 import { Button, Divider, FormControl, Grid, MenuItem, Select, Typography } from '@material-ui/core';
-import { AppStore, Store } from '..';
+import { Store } from '..';
 import AddIcon from '@material-ui/icons/Add';
 import { Input } from 'components/shared/input';
-
-const schema = yup.object().shape({
- buttonName: yup.string().required().label('Button Name'),
- url: yup.string().required().label('URL'),
-});
+import { useDispatch, useSelector } from 'react-redux';
+import { GetUrlBuilderData, SetUrlBuilderData } from 'store/url-builder';
+import { postAppStores } from 'adapters';
 
 export interface AppStoresDialogProps {
  isOpen: boolean;
  onClose(): void;
- stores: AppStore[];
- setStores(stores: AppStore[]): void;
 }
 
-export const AppStoresDialog: FC<AppStoresDialogProps> = ({ isOpen, onClose, stores, setStores }) => {
+export const AppStoresDialog: FC<AppStoresDialogProps> = ({ isOpen, onClose }) => {
+ const dispatch = useDispatch();
+ const builderData = useSelector(GetUrlBuilderData);
  const [loading, setLoading] = useState(false);
- const [tempStores, setTempStores] = useState<AppStore[]>(stores);
+ const [tempStores, setTempStores] = useState(builderData.appStores);
 
- const { handleSubmit } = useForm({ resolver: yupResolver(schema) });
-
- const selectStore = (name: Store, idx: number) => {
+ const setStoreName = (name: Store, idx: number) => {
   const _store = [...tempStores];
-  _store[idx].name = name;
+  _store[idx].storeName = name;
   setTempStores(_store);
  };
 
- const addNewStore = () => setTempStores([...tempStores, { name: '', url: '' }]);
+ const setStoreUrl = (value: string, idx: number) => {
+  const _store = [...tempStores];
+  _store[idx].storeLink = value;
+  setTempStores(_store);
+ };
 
- const submit = (data: any) => {
+ const addNewStore = () => setTempStores([...tempStores, { storeName: '', storeLink: '' }]);
+
+ const submit = () => {
   setLoading(true);
-  console.log(data);
+  postAppStores(tempStores)
+   .then(({ data }) => {
+    if (!data.success) return;
+    dispatch(SetUrlBuilderData(data.data));
+    onClose();
+   })
+   .finally(() => setLoading(false));
  };
 
  return (
-  <DialogWrapper title='App. Stores' onSubmit={handleSubmit(submit)} open={isOpen} onClose={onClose} loading={loading}>
+  <DialogWrapper title='App. Stores' onSubmit={submit} open={isOpen} onClose={onClose} loading={loading}>
    {tempStores.map((tStore, idx) => (
     <>
      {idx > 0 && (
@@ -51,7 +56,7 @@ export const AppStoresDialog: FC<AppStoresDialogProps> = ({ isOpen, onClose, sto
      <Grid item xs={12} className='mb-3'>
       <Typography variant='subtitle2'>App. Store</Typography>
       <FormControl fullWidth>
-       <Select labelId='providers-label' id='providers' value={tStore.name} onChange={(e) => selectStore(e.target.value as Store, idx)}>
+       <Select labelId='providers-label' id='providers' value={tStore.storeName} onChange={(e) => setStoreName(e.target.value as Store, idx)}>
         {Object.keys(Store).map((key) => {
          const store = (Store as any)[key];
          return <MenuItem value={key}>{store}</MenuItem>;
@@ -60,7 +65,7 @@ export const AppStoresDialog: FC<AppStoresDialogProps> = ({ isOpen, onClose, sto
       </FormControl>
      </Grid>
      <Grid item xs={12} className='mb-3'>
-      <Input label='URL' variant='outlined' fullWidth />
+      <Input value={tStore.storeLink} onChange={(e: any) => setStoreUrl(e.target.value, idx)} label='URL' variant='outlined' fullWidth />
      </Grid>
     </>
    ))}

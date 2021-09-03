@@ -6,6 +6,8 @@ import { AddEmbedVideo } from './add-embed-video';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetUrlBuilderData, SetUrlBuilderData, UploadType } from 'store/url-builder';
 import { postVideo, VideoType } from 'adapters';
+import ReactPlayer from 'react-player';
+import { APIBASE } from 'environment';
 
 export interface AddVideoDialogProps {
  open: boolean;
@@ -15,7 +17,7 @@ export interface AddVideoDialogProps {
 export const AddVideoDialog = ({ onClose, open }: AddVideoDialogProps) => {
  const builderData = useSelector(GetUrlBuilderData);
  const [loading, setLoading] = useState(false);
- const [video, setVideo] = useState<UploadType>(builderData.video?.file);
+ const [video, setVideo] = useState<UploadType>(builderData.video.file);
  const [tab, setTab] = useState(0);
  const dispatch = useDispatch();
 
@@ -42,7 +44,7 @@ export const AddVideoDialog = ({ onClose, open }: AddVideoDialogProps) => {
    </Grid>
    {tab === 0 && (
     <Grid item xs={12}>
-     <UploadVideoButton video={video} setVideo={setVideo} />
+     {video._id ? <ReactPlayer url={APIBASE + '/' + video.filePath} controls width='100%' /> : <UploadVideoButton onUpload={setVideo} />}
     </Grid>
    )}
    {tab === 1 && (

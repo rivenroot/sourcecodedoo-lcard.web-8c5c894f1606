@@ -2,13 +2,16 @@ import React, { FC, useState } from 'react';
 import { DialogWrapper } from 'components/shared/dialog';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Grid } from '@material-ui/core';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { Input } from 'components/shared/input';
+import { postCustomCTA } from 'adapters';
+import { useDispatch, useSelector } from 'react-redux';
+import { CustomCTA, GetUrlBuilderData, SetUrlBuilderData } from 'store/url-builder';
 
 const schema = yup.object().shape({
- buttonName: yup.string().required().label('Button Name'),
- url: yup.string().required().label('URL'),
+ buttonText: yup.string().required().label('Button Name'),
+ buttonLink: yup.string().required().label('URL'),
 });
 
 export interface CustomCTADialogProps {
@@ -17,18 +20,26 @@ export interface CustomCTADialogProps {
 }
 
 export const CustomCTADialog: FC<CustomCTADialogProps> = ({ isOpen, onClose }) => {
+ const dispatch = useDispatch();
+ const builderData = useSelector(GetUrlBuilderData);
  const [loading, setLoading] = useState(false);
 
  const submit = (data: any) => {
   setLoading(true);
-  console.log(data);
+  postCustomCTA(data)
+   .then(({ data }) => {
+    if (!data.success) return;
+    dispatch(SetUrlBuilderData(data.data));
+    onClose();
+   })
+   .finally(() => setLoading(false));
  };
 
  const {
-  register,
+  control,
   handleSubmit,
   formState: { errors },
- } = useForm({ resolver: yupResolver(schema) });
+ } = useForm({ resolver: yupResolver(schema), defaultValues: builderData.customCTA });
 
  return (
   <DialogWrapper open={isOpen} onClose={onClose} title='Custom CTA Button' loading={loading} onSubmit={handleSubmit(submit)}>
@@ -36,14 +47,20 @@ export const CustomCTADialog: FC<CustomCTADialogProps> = ({ isOpen, onClose }) =
     const field = schema.fields[key] as any;
     return (
      <Grid key={key} item xs={12} className='mb-3'>
-      <Input
-       variant='outlined'
-       label={field.spec.label}
-       {...register(key)}
-       error={!!errors[key]}
-       helperText={errors[key]?.message}
-       fullWidth
-       disabled={loading}
+      <Controller
+       control={control}
+       name={key as keyof CustomCTA}
+       render={({ field: { onChange, value } }) => (
+        <Input
+         label={field.spec.label}
+         onChange={onChange}
+         value={value}
+         error={!!errors[key as keyof CustomCTA]}
+         helperText={errors[key as keyof CustomCTA]?.message}
+         fullWidth
+         disabled={loading}
+        />
+       )}
       />
      </Grid>
     );

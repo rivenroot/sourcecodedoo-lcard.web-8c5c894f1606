@@ -43,6 +43,27 @@ export interface Testimonial {
  title: string;
 }
 
+export interface CustomCTA {
+ buttonText: string;
+ buttonLink: string;
+}
+
+export interface AppStores {
+ storeName: string;
+ storeLink: string;
+}
+
+export interface ContactFormField {
+ fieldName: string;
+ fieldType: string;
+ isRequired: boolean;
+ editable: boolean;
+}
+export interface ContactForm {
+ contactMail: string;
+ fields: ContactFormField[];
+}
+
 export interface UrlBuilderState {
  userId: string;
  info: Info;
@@ -53,7 +74,8 @@ export interface UrlBuilderState {
  };
  images: UploadType[];
  testimonials: Testimonial[];
- customCTA: any;
- appStores: any;
- contactForm: any;
+ customCTA: CustomCTA;
+ appStores: AppStores[];
+ contactForm: ContactForm;
+ primaryColor: string;
 }

@@ -12,8 +12,11 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import style from './information.module.scss';
 import hoverStyle from 'styles/hover-overlay.module.scss';
 import { EditInformationDialog } from './edit-information-dialog';
+import { useSelector } from 'react-redux';
+import { GetUrlBuilderData } from 'store/url-builder';
 
 export const Information = () => {
+ const builderData = useSelector(GetUrlBuilderData);
  const [informationDialog, setInformationDialog] = useState(false);
 
  const openInformationDialog = () => setInformationDialog(true);
@@ -24,30 +27,30 @@ export const Information = () => {
    <Grid item container xs={12} style={{ padding: '1.5em' }} spacing={4}>
     <Grid item container xs={12} justifyContent='space-between'>
      <Typography variant='subtitle2' color='textPrimary' className={style.wrapIcon}>
-      <CallIcon color='primary' /> <b>Call</b>
+      <CallIcon style={{ color: builderData.primaryColor }} /> <b>Call</b>
      </Typography>
      <Typography variant='subtitle2' color='textPrimary' className={style.wrapIcon}>
-      <MailOutlineIcon color='primary' /> <b>Email</b>
+      <MailOutlineIcon style={{ color: builderData.primaryColor }} /> <b>Email</b>
      </Typography>
      <Typography variant='subtitle2' color='textPrimary' className={style.wrapIcon}>
-      <ChromeReaderModeIcon color='primary' /> <b>Card Info</b>
+      <ChromeReaderModeIcon style={{ color: builderData.primaryColor }} /> <b>Card Info</b>
      </Typography>
      <Typography variant='subtitle2' color='textPrimary' className={style.wrapIcon}>
-      <CropFreeIcon color='primary' /> <b>QR Code</b>
+      <CropFreeIcon style={{ color: builderData.primaryColor }} /> <b>QR Code</b>
      </Typography>
     </Grid>
     <Grid item container xs={12} justifyContent='space-between'>
      <Typography variant='subtitle2' color='textPrimary' className={style.wrapIcon}>
-      <DateRangeIcon color='primary' /> <b>Calendar</b>
+      <DateRangeIcon style={{ color: builderData.primaryColor }} /> <b>Calendar</b>
      </Typography>
      <Typography variant='subtitle2' color='textPrimary' className={style.wrapIcon}>
-      <RoomOutlinedIcon color='primary' /> <b>Navigate</b>
+      <RoomOutlinedIcon style={{ color: builderData.primaryColor }} /> <b>Navigate</b>
      </Typography>
      <Typography variant='subtitle2' color='textPrimary' className={style.wrapIcon}>
-      <LanguageOutlinedIcon color='primary' /> <b>Website</b>
+      <LanguageOutlinedIcon style={{ color: builderData.primaryColor }} /> <b>Website</b>
      </Typography>
      <Typography variant='subtitle2' color='textPrimary' className={style.wrapIcon}>
-      <LinkOutlinedIcon color='primary' /> <b>Links</b>
+      <LinkOutlinedIcon style={{ color: builderData.primaryColor }} /> <b>Links</b>
      </Typography>
     </Grid>
    </Grid>

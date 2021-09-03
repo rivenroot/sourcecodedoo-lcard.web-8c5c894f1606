@@ -2,32 +2,28 @@ import React, { FC, useState } from 'react';
 import { DialogWrapper } from 'components/shared/dialog';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Button } from '@material-ui/core';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { Input } from 'components/shared/input';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DragHandleIcon from '@material-ui/icons/DragHandle';
 import CheckIcon from '@material-ui/icons/Check';
 import AddIcon from '@material-ui/icons/Add';
+import { EditFieldDialog } from './edit-field-dialog';
+import { postContactForm } from 'adapters';
+import { ContactFormField, GetUrlBuilderData, SetUrlBuilderData } from 'store/url-builder';
+import { useDispatch, useSelector } from 'react-redux';
 
 const schema = yup.object().shape({
- email: yup.string().email().required().label('Email'),
+ contactMail: yup.string().email().required().label('Email'),
 });
 
-const reorder = (list: Field[], startIndex: number, endIndex: number): Field[] => {
+const reorder = (list: ContactFormField[], startIndex: number, endIndex: number): ContactFormField[] => {
  const result = list;
  const [removed] = result.splice(startIndex, 1);
  result.splice(endIndex, 0, removed);
-
  return result;
 };
-
-interface Field {
- name: string;
- type: string;
- required: boolean;
- editable: boolean;
-}
 
 export interface ContactMeDialogProps {
  isOpen: boolean;
@@ -35,36 +31,57 @@ export interface ContactMeDialogProps {
 }
 
 export const ContactMeDialog: FC<ContactMeDialogProps> = ({ isOpen, onClose }) => {
+ const dispatch = useDispatch();
+ const builderData = useSelector(GetUrlBuilderData);
  const [loading, setLoading] = useState(false);
- const [fields, setFields] = useState<Field[]>([
-  { name: 'Full Name', type: 'Text', required: true, editable: false },
-  { name: 'Email Adress', type: 'Email', required: true, editable: false },
-  { name: 'Phone Number', type: 'Number', required: true, editable: false },
-  { name: 'Message', type: 'Textarea', required: true, editable: false },
- ]);
-
- const submit = (data: any) => {
-  setLoading(true);
-  console.log(data);
- };
+ const [fields, setFields] = useState<ContactFormField[]>(builderData.contactForm.fields);
+ const [fieldToEdit, setFieldToEdit] = useState<ContactFormField | null>();
 
  const {
-  register,
+  control,
   handleSubmit,
   formState: { errors },
- } = useForm({ resolver: yupResolver(schema) });
+ } = useForm({ resolver: yupResolver(schema), defaultValues: builderData.contactForm });
+
+ const submit = ({ contactMail }: any) => {
+  postContactForm({
+   contactMail,
+   fields: fields,
+  })
+   .then(({ data }) => {
+    if (!data.success) return;
+    dispatch(SetUrlBuilderData(data.data));
+    onClose();
+   })
+   .finally(() => setLoading(false));
+  setLoading(true);
+ };
+
+ const openEditFieldDialog = (field: ContactFormField) => setFieldToEdit(field);
 
  const addNewField = () => {
-  const nextField = fields.filter((field) => field.name.includes('Custom Field')).length + 1;
+  const nextField = fields.filter((field) => field.fieldName.includes('Custom Field')).length + 1;
 
-  const field: Field = {
-   name: 'Custom Field ' + nextField,
-   type: 'Text',
-   required: false,
+  const field: ContactFormField = {
+   fieldName: 'Custom Field ' + nextField,
+   fieldType: 'Text',
+   isRequired: false,
    editable: true,
   };
 
   setFields([...fields, field]);
+ };
+
+ const updateField = (field: ContactFormField) => {
+  const updatedFields = fields.map((f) => (fieldToEdit === f ? field : f));
+  setFieldToEdit(null);
+  setFields(updatedFields);
+ };
+
+ const deleteField = () => {
+  const updatedFields = fields.filter((f) => fieldToEdit !== f);
+  setFieldToEdit(null);
+  setFields(updatedFields);
  };
 
  const onDragEnd = (result: any) => {
@@ -75,16 +92,22 @@ export const ContactMeDialog: FC<ContactMeDialogProps> = ({ isOpen, onClose }) =
  };
 
  return (
-  <DialogWrapper open={isOpen} onClose={onClose} title='Contact Me' loading={loading} onSubmit={handleSubmit(submit)}>
+  <DialogWrapper open={isOpen} onClose={onClose} title='Contact Me' loading={loading} onSubmit={handleSubmit(submit)} onDelete={deleteField}>
    <Grid item xs={12} className='mb-3'>
-    <Input
-     variant='outlined'
-     label='I want to receive emails on this address'
-     {...register('email')}
-     error={!!errors.email}
-     helperText={errors.email?.message}
-     fullWidth
-     disabled={loading}
+    <Controller
+     control={control}
+     name='contactMail'
+     render={({ field: { onChange, value } }) => (
+      <Input
+       label='I want to receive emails on this address'
+       onChange={onChange}
+       value={value}
+       error={!!errors.contactMail}
+       helperText={errors.contactMail?.message}
+       fullWidth
+       disabled={loading}
+      />
+     )}
     />
    </Grid>
    <Grid item xs={12}>
@@ -110,17 +133,17 @@ export const ContactMeDialog: FC<ContactMeDialogProps> = ({ isOpen, onClose }) =
         {(provided) => (
          <TableBody {...provided.droppableProps} ref={provided.innerRef}>
           {fields.map((field, idx) => (
-           <Draggable key={field.name} draggableId={field.name} index={idx}>
+           <Draggable key={field.fieldName} draggableId={field.fieldName} index={idx}>
             {(provided) => (
              <TableRow ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
               <TableCell>
                <DragHandleIcon />
               </TableCell>
-              <TableCell align='left'>{field.name}</TableCell>
-              <TableCell align='left'>{field.type}</TableCell>
-              <TableCell align='left'>{field.required && <CheckIcon fontSize='small' />}</TableCell>
+              <TableCell align='left'>{field.fieldName}</TableCell>
+              <TableCell align='left'>{field.fieldType}</TableCell>
+              <TableCell align='left'>{field.isRequired && <CheckIcon fontSize='small' />}</TableCell>
               <TableCell align='left'>
-               <Button variant='text' color='primary' disabled={!field.editable}>
+               <Button onClick={() => openEditFieldDialog(field)} variant='text' color='primary' disabled={!field.editable}>
                 Edit
                </Button>
               </TableCell>
@@ -141,6 +164,13 @@ export const ContactMeDialog: FC<ContactMeDialogProps> = ({ isOpen, onClose }) =
      Add New Field
     </Button>
    </Grid>
+   <EditFieldDialog
+    onDelete={deleteField}
+    open={!!fieldToEdit}
+    closeDialog={() => setFieldToEdit(null)}
+    field={fieldToEdit as ContactFormField}
+    onSubmit={updateField}
+   />
   </DialogWrapper>
  );
 };

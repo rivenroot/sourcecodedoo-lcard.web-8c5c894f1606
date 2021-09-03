@@ -13,7 +13,7 @@ export const AuthorizedRoute = (props: any) => {
  const decoded = jwt_decode<JwtPayload>(token, {});
  const validToken = compareAsc(decoded.exp || 0, getUnixTime(new Date()));
 
- if (!validToken) {
+ if (validToken !== 1) {
   localStorage.clear();
   return <Redirect to={{ pathname: RoutesProps.LOGIN }} />;
  }

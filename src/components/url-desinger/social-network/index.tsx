@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid, Typography } from '@material-ui/core';
 import { ImportImagesCarousel } from './add-image';
 import { VideoUpload } from './add-video';
-import { AddSocial } from './add-social';
+import { AddSocial } from './socials/add-social';
 
 export const SocialNetwork = () => {
  return (

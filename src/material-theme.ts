@@ -35,6 +35,9 @@ export const theme = createTheme({
   MuiFormControl: {
    variant: 'outlined',
   },
+  MuiButton: {
+      disableElevation: true
+  }
  },
  overrides: {
   MuiButton: {

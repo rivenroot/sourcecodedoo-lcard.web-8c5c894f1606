@@ -27,15 +27,24 @@ const initialState: UrlBuilderState = {
  },
  images: [],
  testimonials: [],
- customCTA: null,
- appStores: null,
- contactForm: null,
+ customCTA: { buttonLink: '', buttonText: '' },
+ appStores: [],
+ contactForm: {
+  contactMail: '',
+  fields: [
+   { fieldName: 'Full Name', fieldType: 'Text', isRequired: true, editable: false },
+   { fieldName: 'Email Adress', fieldType: 'Email', isRequired: true, editable: false },
+   { fieldName: 'Phone Number', fieldType: 'Number', isRequired: true, editable: false },
+   { fieldName: 'Message', fieldType: 'Textarea', isRequired: true, editable: false },
+  ],
+ },
+ primaryColor: '#F4A300',
 };
 
 const UrlBuilderReducer: Reducer<UrlBuilderState> = (state = initialState, action: any) => {
  switch (action.type) {
   case UrlBuilderTypes.SET_BUILDER_DATA: {
-   return { ...action.data };
+   return { ...state, ...action.data };
   }
   default:
    return state;

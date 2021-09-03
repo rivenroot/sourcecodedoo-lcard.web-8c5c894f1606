@@ -1,0 +1,27 @@
+.root {
+ width: 100%;
+ position: fixed;
+ bottom: 0;
+ background-color: rgba($color: #737373, $alpha: 0.8);
+ backdrop-filter: blur(3px);
+}
+
+.grid {
+ padding: 0.7em;
+}
+
+.backButton {
+ color: #fff;
+ margin-right: 1em;
+}
+
+.colorPickerLabel {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    cursor: pointer;
+}
+
+.colorPickerLabel > svg {
+    margin-right: .3em;
+}

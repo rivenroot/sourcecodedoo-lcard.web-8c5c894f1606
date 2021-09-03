@@ -3,15 +3,13 @@ import React, { ChangeEvent, useState } from 'react';
 import style from '../../../social-network.module.scss';
 import AttachFileIcon from '@material-ui/icons/AttachFile';
 import { uploadContent } from 'adapters';
-import ReactPlayer from 'react-player';
-import { APIBASE } from 'environment';
+import { UploadType } from 'store/url-builder';
 
 export interface UploadVideoButtonProps {
- video: any;
- setVideo(video: any): void;
+ onUpload(video: UploadType): void;
 }
 
-export const UploadVideoButton = ({ video, setVideo }: UploadVideoButtonProps) => {
+export const UploadVideoButton = ({ onUpload }: UploadVideoButtonProps) => {
  const [loading, setLoading] = useState(false);
 
  const handleVideoSelect = (e: ChangeEvent<HTMLInputElement>) => {
@@ -22,12 +20,10 @@ export const UploadVideoButton = ({ video, setVideo }: UploadVideoButtonProps) =
   uploadContent(videoFile)
    .then(({ data }) => {
     if (!data.success) return;
-    setVideo(data.data);
+    onUpload(data.data);
    })
    .finally(() => setLoading(false));
  };
-
- if (video) return <ReactPlayer url={APIBASE + '/' + video.filePath} controls width="100%" />;
 
  return (
   <>
